@@ -6,7 +6,7 @@ Real-time monitoring of job statuses, errors, and trends
 import streamlit as st
 import pymongo
 from bson import ObjectId
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pandas as pd
 import plotly.express as px
 from collections import defaultdict
@@ -49,8 +49,8 @@ st.sidebar.title("⚙️ Settings")
 
 # MongoDB environment selector
 MONGO_URIS = {
-    "Production": os.getenv("MONGO_URI_PRODUCTION", ""),
-    "Development": os.getenv("MONGO_URI_DEVELOPMENT", ""),
+    "Production": st.secrets.get("MONGO_URI_PRODUCTION", os.getenv("MONGO_URI_PRODUCTION", "")),
+    "Development": st.secrets.get("MONGO_URI_DEVELOPMENT", os.getenv("MONGO_URI_DEVELOPMENT", "")),
 }
 
 environment = st.sidebar.selectbox("Environment", list(MONGO_URIS.keys()))
@@ -71,10 +71,11 @@ time_range = st.sidebar.selectbox(
 
 if time_range == "Custom":
     col1, col2 = st.sidebar.columns(2)
-    start_date = col1.date_input("Start Date", datetime.now().date() - timedelta(days=7))
-    end_date = col2.date_input("End Date", datetime.now().date())
-    start_datetime = datetime.combine(start_date, datetime.min.time())
-    end_datetime = datetime.combine(end_date, datetime.max.time())
+    now_utc = datetime.now(timezone.utc)
+    start_date = col1.date_input("Start Date", now_utc.date() - timedelta(days=7))
+    end_date = col2.date_input("End Date", now_utc.date())
+    start_datetime = datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc)
+    end_datetime = datetime.combine(end_date, datetime.max.time(), tzinfo=timezone.utc)
 else:
     time_ranges = {
         "Last Hour": 1/24,
@@ -84,8 +85,8 @@ else:
         "Last 30 Days": 30
     }
     days_back = time_ranges[time_range]
-    start_datetime = datetime.now() - timedelta(days=days_back)
-    end_datetime = datetime.now()
+    end_datetime = datetime.now(timezone.utc)
+    start_datetime = end_datetime - timedelta(days=days_back)
 
 # Artifact type filter
 _type_options = ["All Types"] + list(ARTIFACT_TYPE_NAMES.values())
@@ -342,52 +343,52 @@ if connect_button or st.session_state.connected:
                     )
                     fig_activities.update_layout(height=400)
                     st.plotly_chart(fig_activities, use_container_width=True)
+        
+        # --- Aggregation: Artifact type breakdown (only when "All Types" selected) ---
+        if selected_type_name == "All Types":
+            st.divider()
+            st.subheader("🎯 Artifact Types")
             
-            # --- Aggregation: Artifact type breakdown (only when "All Types" selected) ---
-            if selected_type_name == "All Types":
-                st.divider()
-                st.subheader("🎯 Artifact Types")
-                
-                # Use time-only filter so we see all artifact types in data, not just those in JSON
-                match_time_only = {"$match": {"createdAt": {"$gte": start_datetime, "$lte": end_datetime}}}
-                artifact_agg = list(collection.aggregate([
-                    match_time_only,
-                    {"$group": {
-                        "_id": {"artifactTypeId": "$artifactTypeId", "status": "$status"},
-                        "count": {"$sum": 1}
-                    }}
-                ]))
-                
-                artifact_types = defaultdict(lambda: {'total': 0, 'failed': 0, 'completed': 0})
-                for doc in artifact_agg:
-                    art_id = str(doc["_id"]["artifactTypeId"])
-                    art_name = resolve_artifact_name(art_id)
-                    status = doc["_id"]["status"] or "unknown"
-                    count = doc["count"]
-                    artifact_types[art_name]['total'] += count
-                    if status == 'failed':
-                        artifact_types[art_name]['failed'] += count
-                    elif status == 'completed':
-                        artifact_types[art_name]['completed'] += count
-                
-                artifact_list = []
-                for art_name, counts in artifact_types.items():
-                    fr = (counts['failed'] / counts['total'] * 100) if counts['total'] > 0 else 0
-                    artifact_list.append({
-                        'Artifact Type': art_name,
-                        'Total Jobs': counts['total'],
-                        'Failed': counts['failed'],
-                        'completed': counts['completed'],
-                        'Failure Rate %': round(fr, 1)
-                    })
-                
-                artifact_df = pd.DataFrame(artifact_list).sort_values('Total Jobs', ascending=False)
-                
-                st.dataframe(artifact_df.head(15), use_container_width=True, hide_index=True)
-                
-                high_failure = artifact_df[artifact_df['Failure Rate %'] > 50]
-                if not high_failure.empty:
-                    st.warning(f"⚠️ {len(high_failure)} artifact type(s) have >50% failure rate")
+            # Use time-only filter so we see all artifact types in data, not just those in JSON
+            match_time_only = {"$match": {"createdAt": {"$gte": start_datetime, "$lte": end_datetime}}}
+            artifact_agg = list(collection.aggregate([
+                match_time_only,
+                {"$group": {
+                    "_id": {"artifactTypeId": "$artifactTypeId", "status": "$status"},
+                    "count": {"$sum": 1}
+                }}
+            ]))
+            
+            artifact_types = defaultdict(lambda: {'total': 0, 'failed': 0, 'completed': 0})
+            for doc in artifact_agg:
+                art_id = str(doc["_id"]["artifactTypeId"])
+                art_name = resolve_artifact_name(art_id)
+                status = doc["_id"]["status"] or "unknown"
+                count = doc["count"]
+                artifact_types[art_name]['total'] += count
+                if status == 'failed':
+                    artifact_types[art_name]['failed'] += count
+                elif status == 'completed':
+                    artifact_types[art_name]['completed'] += count
+            
+            artifact_list = []
+            for art_name, counts in artifact_types.items():
+                fr = (counts['failed'] / counts['total'] * 100) if counts['total'] > 0 else 0
+                artifact_list.append({
+                    'Artifact Type': art_name,
+                    'Total Jobs': counts['total'],
+                    'Failed': counts['failed'],
+                    'completed': counts['completed'],
+                    'Failure Rate %': round(fr, 1)
+                })
+            
+            artifact_df = pd.DataFrame(artifact_list).sort_values('Total Jobs', ascending=False)
+            
+            st.dataframe(artifact_df.head(15), use_container_width=True, hide_index=True)
+            
+            high_failure = artifact_df[artifact_df['Failure Rate %'] > 50]
+            if not high_failure.empty:
+                st.warning(f"⚠️ {len(high_failure)} artifact type(s) have >50% failure rate")
         
         # --- Recent Jobs Table (only fetch 50 documents) ---
         st.divider()
@@ -395,6 +396,7 @@ if connect_button or st.session_state.connected:
         
         recent_projection = {
             "status": 1, "createdAt": 1,
+            "artifactTypeId": 1,
             "error.rootCauseMessage": 1,
         }
         recent_jobs = list(
@@ -410,6 +412,7 @@ if connect_button or st.session_state.connected:
             created = job.get('createdAt')
             created_str = str(created)[:19] if created else 'Unknown'
             status = job.get('status', 'unknown')
+            artifact_type = resolve_artifact_name(job.get('artifactTypeId', ''))
             error_msg = ''
             if status == 'failed':
                 error_msg = (job.get('error', {}) or {}).get('rootCauseMessage', 'No message')
@@ -418,6 +421,7 @@ if connect_button or st.session_state.connected:
             recent_list.append({
                 'Job ID': job_id_str,
                 'Created': created_str,
+                'Artifact Type': artifact_type,
                 'Status': status,
                 'Error': error_msg
             })
