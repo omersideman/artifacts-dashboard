@@ -22,9 +22,9 @@ with open(_artifact_types_path) as f:
     ARTIFACT_TYPE_NAMES = json.load(f)
 
 def resolve_artifact_name(art_id):
-    """Resolve an artifact type ObjectId to its friendly name."""
+    """Resolve an artifact type ObjectId to its friendly name, or full ID if not in JSON."""
     art_id_str = str(art_id)
-    return ARTIFACT_TYPE_NAMES.get(art_id_str, art_id_str[:20] + "...")
+    return ARTIFACT_TYPE_NAMES.get(art_id_str, art_id_str)
 
 # Page config
 st.set_page_config(
@@ -343,48 +343,51 @@ if connect_button or st.session_state.connected:
                     fig_activities.update_layout(height=400)
                     st.plotly_chart(fig_activities, use_container_width=True)
             
-            # --- Aggregation: Artifact type breakdown ---
-            st.divider()
-            st.subheader("🎯 Artifact Types")
-            
-            artifact_agg = list(collection.aggregate([
-                match_stage,
-                {"$group": {
-                    "_id": {"artifactTypeId": "$artifactTypeId", "status": "$status"},
-                    "count": {"$sum": 1}
-                }}
-            ]))
-            
-            artifact_types = defaultdict(lambda: {'total': 0, 'failed': 0, 'completed': 0})
-            for doc in artifact_agg:
-                art_id = str(doc["_id"]["artifactTypeId"])
-                art_name = resolve_artifact_name(art_id)
-                status = doc["_id"]["status"] or "unknown"
-                count = doc["count"]
-                artifact_types[art_name]['total'] += count
-                if status == 'failed':
-                    artifact_types[art_name]['failed'] += count
-                elif status == 'completed':
-                    artifact_types[art_name]['completed'] += count
-            
-            artifact_list = []
-            for art_name, counts in artifact_types.items():
-                fr = (counts['failed'] / counts['total'] * 100) if counts['total'] > 0 else 0
-                artifact_list.append({
-                    'Artifact Type': art_name,
-                    'Total Jobs': counts['total'],
-                    'Failed': counts['failed'],
-                    'completed': counts['completed'],
-                    'Failure Rate %': round(fr, 1)
-                })
-            
-            artifact_df = pd.DataFrame(artifact_list).sort_values('Total Jobs', ascending=False)
-            
-            st.dataframe(artifact_df.head(15), use_container_width=True, hide_index=True)
-            
-            high_failure = artifact_df[artifact_df['Failure Rate %'] > 50]
-            if not high_failure.empty:
-                st.warning(f"⚠️ {len(high_failure)} artifact type(s) have >50% failure rate")
+            # --- Aggregation: Artifact type breakdown (only when "All Types" selected) ---
+            if selected_type_name == "All Types":
+                st.divider()
+                st.subheader("🎯 Artifact Types")
+                
+                # Use time-only filter so we see all artifact types in data, not just those in JSON
+                match_time_only = {"$match": {"createdAt": {"$gte": start_datetime, "$lte": end_datetime}}}
+                artifact_agg = list(collection.aggregate([
+                    match_time_only,
+                    {"$group": {
+                        "_id": {"artifactTypeId": "$artifactTypeId", "status": "$status"},
+                        "count": {"$sum": 1}
+                    }}
+                ]))
+                
+                artifact_types = defaultdict(lambda: {'total': 0, 'failed': 0, 'completed': 0})
+                for doc in artifact_agg:
+                    art_id = str(doc["_id"]["artifactTypeId"])
+                    art_name = resolve_artifact_name(art_id)
+                    status = doc["_id"]["status"] or "unknown"
+                    count = doc["count"]
+                    artifact_types[art_name]['total'] += count
+                    if status == 'failed':
+                        artifact_types[art_name]['failed'] += count
+                    elif status == 'completed':
+                        artifact_types[art_name]['completed'] += count
+                
+                artifact_list = []
+                for art_name, counts in artifact_types.items():
+                    fr = (counts['failed'] / counts['total'] * 100) if counts['total'] > 0 else 0
+                    artifact_list.append({
+                        'Artifact Type': art_name,
+                        'Total Jobs': counts['total'],
+                        'Failed': counts['failed'],
+                        'completed': counts['completed'],
+                        'Failure Rate %': round(fr, 1)
+                    })
+                
+                artifact_df = pd.DataFrame(artifact_list).sort_values('Total Jobs', ascending=False)
+                
+                st.dataframe(artifact_df.head(15), use_container_width=True, hide_index=True)
+                
+                high_failure = artifact_df[artifact_df['Failure Rate %'] > 50]
+                if not high_failure.empty:
+                    st.warning(f"⚠️ {len(high_failure)} artifact type(s) have >50% failure rate")
         
         # --- Recent Jobs Table (only fetch 50 documents) ---
         st.divider()
