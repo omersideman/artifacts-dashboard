@@ -45,12 +45,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Sidebar - Connection Settings
-st.sidebar.title("⚙️ Settings")
+st.sidebar.title("Settings")
 
 # MongoDB environment selector
 MONGO_URIS = {
-    "Production": st.secrets.get("MONGO_URI_PRODUCTION", os.getenv("MONGO_URI_PRODUCTION", "")),
-    "Development": st.secrets.get("MONGO_URI_DEVELOPMENT", os.getenv("MONGO_URI_DEVELOPMENT", "")),
+    "Production": os.getenv("MONGO_URI_PRODUCTION", ""),
+    "Development": os.getenv("MONGO_URI_DEVELOPMENT", ""),
 }
 
 environment = st.sidebar.selectbox("Environment", list(MONGO_URIS.keys()))
@@ -130,7 +130,7 @@ if connect_button or st.session_state.connected:
         collection = db[collection_name]
         
         # Main dashboard
-        st.title("📊 Artifact Jobs Monitoring Dashboard")
+        st.title("Artifact Jobs Monitoring Dashboard")
         st.markdown(f"**Time Range:** {start_datetime.strftime('%Y-%m-%d %H:%M')} to {end_datetime.strftime('%Y-%m-%d %H:%M')}")
         
         # Shared match stage for all aggregations
@@ -214,7 +214,7 @@ if connect_button or st.session_state.connected:
         col_left, col_right = st.columns([2, 1])
         
         with col_left:
-            st.subheader("📈 Jobs Over Time")
+            st.subheader("Jobs Over Time")
             
             if timeline_agg:
                 timeline_data = [{
@@ -238,7 +238,7 @@ if connect_button or st.session_state.connected:
                 st.plotly_chart(fig_timeline, use_container_width=True)
         
         with col_right:
-            st.subheader("📊 Status Distribution")
+            st.subheader("Status Distribution")
             
             status_df = pd.DataFrame([
                 {'Status': k, 'Count': v} for k, v in status_counts.items()
@@ -257,7 +257,7 @@ if connect_button or st.session_state.connected:
         # --- Error Analysis (only if there are failures) ---
         if failed_count > 0:
             st.divider()
-            st.subheader("🔍 Error Analysis")
+            st.subheader("Error Analysis")
             
             # Aggregation: error categorization (root vs cascade)
             error_cat_agg = list(collection.aggregate([
@@ -343,11 +343,45 @@ if connect_button or st.session_state.connected:
                     )
                     fig_activities.update_layout(height=400)
                     st.plotly_chart(fig_activities, use_container_width=True)
+            
+            # Failures by Artifact Type (only when "All Types" selected)
+            if selected_type_name == "All Types":
+                st.divider()
+                st.subheader("Failures by Artifact Type")
+                
+                # Aggregation: failed jobs by artifact type
+                failed_by_type_agg = list(collection.aggregate([
+                    match_stage,
+                    {"$match": {"status": "failed"}},
+                    {"$group": {
+                        "_id": "$artifactTypeId",
+                        "count": {"$sum": 1}
+                    }},
+                    {"$sort": {"count": -1}},
+                    {"$limit": 15}
+                ]))
+                
+                if failed_by_type_agg:
+                    failed_type_data = [{
+                        "Artifact Type": resolve_artifact_name(doc["_id"]),
+                        "Failed Jobs": doc["count"]
+                    } for doc in failed_by_type_agg]
+                    
+                    failed_type_df = pd.DataFrame(failed_type_data)
+                    
+                    fig_failed_types = px.pie(
+                        failed_type_df,
+                        values='Failed Jobs',
+                        names='Artifact Type',
+                        title=f'Distribution of {failed_count:,} Failed Jobs by Type'
+                    )
+                    fig_failed_types.update_layout(height=500)
+                    st.plotly_chart(fig_failed_types, use_container_width=True)
         
         # --- Aggregation: Artifact type breakdown (only when "All Types" selected) ---
         if selected_type_name == "All Types":
             st.divider()
-            st.subheader("🎯 Artifact Types")
+            st.subheader("Artifact Types")
             
             # Use time-only filter so we see all artifact types in data, not just those in JSON
             match_time_only = {"$match": {"createdAt": {"$gte": start_datetime, "$lte": end_datetime}}}
@@ -385,14 +419,10 @@ if connect_button or st.session_state.connected:
             artifact_df = pd.DataFrame(artifact_list).sort_values('Total Jobs', ascending=False)
             
             st.dataframe(artifact_df.head(15), use_container_width=True, hide_index=True)
-            
-            high_failure = artifact_df[artifact_df['Failure Rate %'] > 50]
-            if not high_failure.empty:
-                st.warning(f"⚠️ {len(high_failure)} artifact type(s) have >50% failure rate")
-        
+                    
         # --- Recent Jobs Table (only fetch 50 documents) ---
         st.divider()
-        st.subheader("📋 Recent Jobs")
+        st.subheader("Recent Jobs")
         
         recent_projection = {
             "status": 1, "createdAt": 1,
@@ -438,7 +468,7 @@ if connect_button or st.session_state.connected:
                 "status": 1, "createdAt": 1,
                 "artifactTypeId": 1, "error": 1,
             }
-            if st.button("📥 Export Failed Jobs (JSON)"):
+            if st.button("Export Failed Jobs (JSON)"):
                 failed_cursor = collection.find(
                     {**base_filter, "status": "failed"},
                     export_projection
@@ -477,18 +507,18 @@ if connect_button or st.session_state.connected:
 
 else:
     # Welcome screen
-    st.title("📊 Artifact Jobs Monitoring Dashboard")
+    st.title("Artifact Jobs Monitoring Dashboard")
     st.markdown("""
     ### Welcome! 👋
     
     This dashboard provides real-time monitoring of your artifact job processing system.
     
     **Features:**
-    - 📈 Real-time job status tracking
-    - 🔍 Error analysis and categorization
-    - 🎯 Artifact type performance breakdown
-    - ⏱️ Timeline visualization
-    - 📥 Data export capabilities
+    - Real-time job status tracking
+    - Error analysis and categorization
+    - Artifact type performance breakdown
+    - Timeline visualization
+    - Data export capabilities
     
     
     **Configuration:**
