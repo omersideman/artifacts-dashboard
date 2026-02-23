@@ -6,7 +6,7 @@ Real-time monitoring of job statuses, errors, and trends
 import streamlit as st
 import pymongo
 from bson import ObjectId
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import pandas as pd
 import plotly.express as px
 from collections import defaultdict
@@ -85,11 +85,10 @@ time_range = st.sidebar.selectbox(
 
 if time_range == "Custom":
     col1, col2 = st.sidebar.columns(2)
-    now_utc = datetime.now(timezone.utc)
-    start_date = col1.date_input("Start Date", now_utc.date() - timedelta(days=7))
-    end_date = col2.date_input("End Date", now_utc.date())
-    start_datetime = datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc)
-    end_datetime = datetime.combine(end_date, datetime.max.time(), tzinfo=timezone.utc)
+    start_date = col1.date_input("Start Date", datetime.utcnow().date() - timedelta(days=7))
+    end_date = col2.date_input("End Date", datetime.utcnow().date())
+    start_datetime = datetime.combine(start_date, datetime.min.time())
+    end_datetime = datetime.combine(end_date, datetime.max.time())
 else:
     time_ranges = {
         "Last Hour": 1/24,
@@ -99,7 +98,7 @@ else:
         "Last 30 Days": 30
     }
     days_back = time_ranges[time_range]
-    end_datetime = datetime.now(timezone.utc)
+    end_datetime = datetime.utcnow()
     start_datetime = end_datetime - timedelta(days=days_back)
 
 # Artifact type filter
@@ -186,8 +185,19 @@ if connect_button or st.session_state.connected:
         avg_time = duration_agg[0]["avgDuration"] if duration_agg else 0
         avg_time = avg_time or 0
         
+        # --- Aggregation: Avg pending time (startTime - createdAt) ---
+        pending_agg = list(collection.aggregate([
+            match_stage,
+            {"$match": {"startTime": {"$exists": True}}},
+            {"$project": {"pendingMs": {"$subtract": ["$startTime", "$createdAt"]}}},
+            {"$match": {"pendingMs": {"$gt": 0}}},
+            {"$group": {"_id": None, "avgPending": {"$avg": "$pendingMs"}}}
+        ]))
+        avg_pending_ms = pending_agg[0]["avgPending"] if pending_agg else 0
+        avg_pending_s = (avg_pending_ms or 0) / 1000
+        
         # Metrics row
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
         
         with col1:
             st.metric("Total Jobs", f"{total_jobs:,}")
@@ -206,6 +216,12 @@ if connect_button or st.session_state.connected:
             else:
                 duration_label = "N/A"
             st.metric("Avg Duration", duration_label)
+        with col6:
+            if avg_pending_s > 0:
+                pending_label = f"{avg_pending_s:.0f}s" if avg_pending_s < 60 else f"{avg_pending_s/60:.1f}m"
+            else:
+                pending_label = "N/A"
+            st.metric("Avg Pending", pending_label)
         
         st.divider()
         
@@ -265,6 +281,40 @@ if connect_button or st.session_state.connected:
             )
             fig_pie.update_layout(height=400)
             st.plotly_chart(fig_pie, use_container_width=True)
+        
+        # --- Failure rate over time ---
+        if timeline_agg:
+            st.subheader("Failure Rate Over Time")
+            
+            hourly_totals = defaultdict(lambda: {"total": 0, "failed": 0})
+            for doc in timeline_agg:
+                hour = doc["_id"]["hour"]
+                status = doc["_id"]["status"] or "unknown"
+                count = doc["count"]
+                hourly_totals[hour]["total"] += count
+                if status == "failed":
+                    hourly_totals[hour]["failed"] += count
+            
+            failure_rate_data = [{
+                "hour": hour,
+                "Failure Rate %": round(counts["failed"] / counts["total"] * 100, 1) if counts["total"] > 0 else 0,
+                "Total Jobs": counts["total"],
+                "Failed": counts["failed"]
+            } for hour, counts in sorted(hourly_totals.items())]
+            
+            df_failure_rate = pd.DataFrame(failure_rate_data)
+            
+            fig_failure_rate = px.line(
+                df_failure_rate,
+                x="hour",
+                y="Failure Rate %",
+                title="Failure Rate % by Hour",
+                labels={"hour": "Time"},
+                markers=True,
+            )
+            fig_failure_rate.update_traces(line_color="#d32f2f")
+            fig_failure_rate.update_layout(height=350, yaxis_range=[0, max(df_failure_rate["Failure Rate %"].max() * 1.2, 5)])
+            st.plotly_chart(fig_failure_rate, use_container_width=True)
         
         # --- Error Analysis (only if there are failures) ---
         if failed_count > 0:
@@ -463,6 +513,51 @@ if connect_button or st.session_state.connected:
             artifact_df = pd.DataFrame(artifact_list).sort_values('Total Jobs', ascending=False)
             
             st.dataframe(artifact_df.head(15), use_container_width=True, hide_index=True)
+        
+        # --- Pending time by artifact type ---
+        st.divider()
+        st.subheader("Avg Pending Time by Artifact Type")
+        
+        pending_by_type_agg = list(collection.aggregate([
+            match_stage,
+            {"$match": {"startTime": {"$exists": True}}},
+            {"$project": {
+                "artifactTypeId": 1,
+                "pendingMs": {"$subtract": ["$startTime", "$createdAt"]}
+            }},
+            {"$match": {"pendingMs": {"$gt": 0}}},
+            {"$group": {
+                "_id": "$artifactTypeId",
+                "avgPending": {"$avg": "$pendingMs"},
+                "maxPending": {"$max": "$pendingMs"},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"avgPending": -1}},
+            {"$limit": 15}
+        ]))
+        
+        if pending_by_type_agg:
+            pending_type_data = [{
+                "Artifact Type": resolve_artifact_name(doc["_id"]),
+                "Avg Pending (s)": round(doc["avgPending"] / 1000, 1),
+                "Max Pending (s)": round(doc["maxPending"] / 1000, 1),
+                "Jobs": doc["count"]
+            } for doc in pending_by_type_agg]
+            
+            pending_type_df = pd.DataFrame(pending_type_data)
+            
+            fig_pending = px.bar(
+                pending_type_df,
+                x="Avg Pending (s)",
+                y="Artifact Type",
+                orientation="h",
+                title="Avg Pending Time by Artifact Type (seconds)",
+                hover_data=["Max Pending (s)", "Jobs"],
+            )
+            fig_pending.update_layout(height=max(300, len(pending_type_data) * 35 + 100))
+            st.plotly_chart(fig_pending, use_container_width=True)
+        else:
+            st.info("No pending time data available (jobs missing startTime)")
                     
         # --- Recent Jobs Table (only fetch 50 documents) ---
         st.divider()
