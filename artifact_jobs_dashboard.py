@@ -69,7 +69,11 @@ else:
     environment = st.sidebar.selectbox("Environment", list(available_envs.keys()))
     mongo_uri = available_envs[environment]
 
-db_name = st.sidebar.text_input("Database Name", value="production-artifacts")
+if available_envs and environment == "Development":
+    eko_env = st.sidebar.text_input("Eko Env", value="eko2")
+    db_name = f"{eko_env}-artifacts"
+else:
+    db_name = "production-artifacts"
 collection_name = "artifactJobs"
 
 # Time range selector
@@ -352,39 +356,71 @@ if connect_button or st.session_state.connected:
                     fig_activities.update_layout(height=400)
                     st.plotly_chart(fig_activities, use_container_width=True)
             
-            # Failures by Artifact Type (only when "All Types" selected)
+            # Jobs by Artifact Type pie charts (only when "All Types" selected)
             if selected_type_name == "All Types":
                 st.divider()
-                st.subheader("Failures by Artifact Type")
+                col_all_types, col_failed_types = st.columns(2)
                 
-                # Aggregation: failed jobs by artifact type
-                failed_by_type_agg = list(collection.aggregate([
-                    match_stage,
-                    {"$match": {"status": "failed"}},
-                    {"$group": {
-                        "_id": "$artifactTypeId",
-                        "count": {"$sum": 1}
-                    }},
-                    {"$sort": {"count": -1}},
-                    {"$limit": 15}
-                ]))
+                with col_all_types:
+                    st.subheader("All Jobs by Artifact Type")
+                    
+                    all_by_type_agg = list(collection.aggregate([
+                        match_stage,
+                        {"$group": {
+                            "_id": "$artifactTypeId",
+                            "count": {"$sum": 1}
+                        }},
+                        {"$sort": {"count": -1}},
+                        {"$limit": 15}
+                    ]))
+                    
+                    if all_by_type_agg:
+                        all_type_data = [{
+                            "Artifact Type": resolve_artifact_name(doc["_id"]),
+                            "Jobs": doc["count"]
+                        } for doc in all_by_type_agg]
+                        
+                        all_type_df = pd.DataFrame(all_type_data)
+                        
+                        fig_all_types = px.pie(
+                            all_type_df,
+                            values='Jobs',
+                            names='Artifact Type',
+                            title=f'Distribution of {total_jobs:,} Jobs by Type'
+                        )
+                        fig_all_types.update_layout(height=500)
+                        st.plotly_chart(fig_all_types, use_container_width=True)
                 
-                if failed_by_type_agg:
-                    failed_type_data = [{
-                        "Artifact Type": resolve_artifact_name(doc["_id"]),
-                        "Failed Jobs": doc["count"]
-                    } for doc in failed_by_type_agg]
+                with col_failed_types:
+                    st.subheader("Failures by Artifact Type")
                     
-                    failed_type_df = pd.DataFrame(failed_type_data)
+                    failed_by_type_agg = list(collection.aggregate([
+                        match_stage,
+                        {"$match": {"status": "failed"}},
+                        {"$group": {
+                            "_id": "$artifactTypeId",
+                            "count": {"$sum": 1}
+                        }},
+                        {"$sort": {"count": -1}},
+                        {"$limit": 15}
+                    ]))
                     
-                    fig_failed_types = px.pie(
-                        failed_type_df,
-                        values='Failed Jobs',
-                        names='Artifact Type',
-                        title=f'Distribution of {failed_count:,} Failed Jobs by Type'
-                    )
-                    fig_failed_types.update_layout(height=500)
-                    st.plotly_chart(fig_failed_types, use_container_width=True)
+                    if failed_by_type_agg:
+                        failed_type_data = [{
+                            "Artifact Type": resolve_artifact_name(doc["_id"]),
+                            "Failed Jobs": doc["count"]
+                        } for doc in failed_by_type_agg]
+                        
+                        failed_type_df = pd.DataFrame(failed_type_data)
+                        
+                        fig_failed_types = px.pie(
+                            failed_type_df,
+                            values='Failed Jobs',
+                            names='Artifact Type',
+                            title=f'Distribution of {failed_count:,} Failed Jobs by Type'
+                        )
+                        fig_failed_types.update_layout(height=500)
+                        st.plotly_chart(fig_failed_types, use_container_width=True)
         
         # --- Aggregation: Artifact type breakdown (only when "All Types" selected) ---
         if selected_type_name == "All Types":
