@@ -161,15 +161,13 @@ if connect_button or st.session_state.connected:
             
             st.success(f"✅ Found {total_jobs:,} jobs in range")
         
-        # --- Aggregation: Avg duration (from execution.durations[0]) ---
+        # --- Aggregation: Avg duration (from execution.totalDuration) ---
         duration_agg = list(collection.aggregate([
             match_stage,
             {"$match": {
-                "execution.durations": {"$exists": True, "$ne": []},
+                "execution.totalDuration": {"$exists": True, "$gt": 0},
             }},
-            {"$project": {"duration": {"$arrayElemAt": ["$execution.durations", 0]}}},
-            {"$match": {"duration": {"$gt": 0}}},
-            {"$group": {"_id": None, "avgDuration": {"$avg": "$duration"}, "count": {"$sum": 1}}}
+            {"$group": {"_id": None, "avgDuration": {"$avg": "$execution.totalDuration"}, "count": {"$sum": 1}}}
         ]))
         avg_time = duration_agg[0]["avgDuration"] if duration_agg else 0
         avg_time = avg_time or 0
@@ -464,22 +462,40 @@ if connect_button or st.session_state.connected:
         col_export1, col_export2 = st.columns(2)
         
         with col_export1:
+            omit_cascading = st.checkbox("Omit cascading errors (ChildWorkflowFailure)", value=True)
+            
             export_projection = {
                 "status": 1, "createdAt": 1,
                 "artifactTypeId": 1, "error": 1,
             }
             if st.button("Export Failed Jobs (JSON)"):
+                # Build query with optional cascade filter
+                export_query = {**base_filter, "status": "failed"}
+                if omit_cascading:
+                    export_query["error.name"] = {"$ne": "ChildWorkflowFailure"}
+                
                 failed_cursor = collection.find(
-                    {**base_filter, "status": "failed"},
+                    export_query,
                     export_projection
                 ).sort("createdAt", -1).limit(5000)
                 
-                failed_export = json.dumps([{
-                    '_id': str(job.get('_id', '')),
-                    'createdAt': str(job.get('createdAt', '')),
-                    'status': job.get('status'),
-                    'error': json.loads(json.dumps(job.get('error', {}), default=str))
-                } for job in failed_cursor], indent=2)
+                failed_list = []
+                for job in failed_cursor:
+                    error_data = job.get('error', {}) or {}
+                    # Truncate rootCauseMessage to 200 chars
+                    if 'rootCauseMessage' in error_data and error_data['rootCauseMessage']:
+                        error_data['rootCauseMessage'] = error_data['rootCauseMessage'][:200]
+                    
+                    failed_list.append({
+                        '_id': str(job.get('_id', '')),
+                        'createdAt': str(job.get('createdAt', '')),
+                        'status': job.get('status'),
+                        'artifactTypeId': str(job.get('artifactTypeId', '')),
+                        'artifactTypeName': resolve_artifact_name(job.get('artifactTypeId', '')),
+                        'error': json.loads(json.dumps(error_data, default=str))
+                    })
+                
+                failed_export = json.dumps(failed_list, indent=2)
                 
                 st.download_button(
                     label="Download failed_jobs.json",
