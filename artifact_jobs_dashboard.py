@@ -53,11 +53,21 @@ MONGO_URIS = {
     "Development": os.getenv("MONGO_URI_DEVELOPMENT", ""),
 }
 
-environment = st.sidebar.selectbox("Environment", list(MONGO_URIS.keys()))
-mongo_uri = MONGO_URIS[environment]
+# Filter to only show environments with valid URIs
+available_envs = {k: v for k, v in MONGO_URIS.items() if v}
 
-if not mongo_uri:
-    st.sidebar.error(f"⚠️ {environment} URI not set in .env file")
+if not available_envs:
+    st.sidebar.error("⚠️ No MongoDB URIs configured in .env file")
+    mongo_uri = ""
+elif len(available_envs) == 1:
+    # Only one environment, auto-select it
+    environment = list(available_envs.keys())[0]
+    mongo_uri = available_envs[environment]
+    st.sidebar.info(f"Environment: {environment}")
+else:
+    # Multiple environments, show selector
+    environment = st.sidebar.selectbox("Environment", list(available_envs.keys()))
+    mongo_uri = available_envs[environment]
 
 db_name = st.sidebar.text_input("Database Name", value="production-artifacts")
 collection_name = "artifactJobs"
