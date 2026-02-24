@@ -1,0 +1,2504 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "\n<div style=\"padding: 20px;\">\n  <div style=\"display: flex; justify-content: space-between; align-items: center; margin: 0 0 16px 0;\">\n    <h1 style=\"font-size: 2.5em; font-weight: bold; margin: 0; line-height: 1.2;\">Artifact Jobs Monitoring Dashboard</h1>\n    <span style=\"background: #5794f2; color: #ffffff; padding: 4px 12px; border-radius: 12px; font-size: 0.9em; font-weight: 500; text-transform: uppercase;\">production</span>\n  </div>\n  <p style=\"font-size: 1.1em; margin: 0; color: #b7b7b7; line-height: 1.5;\">Real-time monitoring of job statuses, errors, and trends</p>\n</div>\n",
+        "mode": "html"
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 0,
+        "y": 4
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Jobs",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 4,
+        "y": 4
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"status\": \"completed\",\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"status\": \"completed\",\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Completed",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 8,
+        "y": 4
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"status\": \"failed\",\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"status\": \"failed\",\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 12,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"total\": {\n        \"$sum\": 1\n      },\n      \"failed\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$status\",\n                \"failed\"\n              ]\n            },\n            1,\n            0\n          ]\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": {\n        \"$round\": [\n          {\n            \"$subtract\": [\n              100,\n              {\n                \"$multiply\": [\n                  {\n                    \"$divide\": [\n                      \"$failed\",\n                      \"$total\"\n                    ]\n                  },\n                  100\n                ]\n              }\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"total\": {\n        \"$sum\": 1\n      },\n      \"failed\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$status\",\n                \"failed\"\n              ]\n            },\n            1,\n            0\n          ]\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": {\n        \"$round\": [\n          {\n            \"$subtract\": [\n              100,\n              {\n                \"$multiply\": [\n                  {\n                    \"$divide\": [\n                      \"$failed\",\n                      \"$total\"\n                    ]\n                  },\n                  100\n                ]\n              }\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Health %",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "m"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 16,
+        "y": 4
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"execution.totalDuration\": {\n        \"$exists\": true,\n        \"$gt\": 0\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"avgDuration\": {\n        \"$avg\": \"$execution.totalDuration\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgDuration\",\n              60\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"execution.totalDuration\": {\n        \"$exists\": true,\n        \"$gt\": 0\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"avgDuration\": {\n        \"$avg\": \"$execution.totalDuration\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgDuration\",\n              60\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Duration",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 20,
+        "y": 4
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"startTime\": {\n        \"$exists\": true\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$project\": {\n      \"pendingMs\": {\n        \"$subtract\": [\n          \"$startTime\",\n          \"$createdAt\"\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\n      \"pendingMs\": {\n        \"$gt\": 0\n      }\n    }\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"avgPending\": {\n        \"$avg\": \"$pendingMs\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgPending\",\n              1000\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"startTime\": {\n        \"$exists\": true\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$project\": {\n      \"pendingMs\": {\n        \"$subtract\": [\n          \"$startTime\",\n          \"$createdAt\"\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\n      \"pendingMs\": {\n        \"$gt\": 0\n      }\n    }\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"avgPending\": {\n        \"$avg\": \"$pendingMs\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgPending\",\n              1000\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Pending Time",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "running"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cancelled"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pending"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 16,
+        "x": 0,
+        "y": 10
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"time\": {\n          \"$dateTrunc\": {\n            \"date\": \"$createdAt\",\n            \"unit\": \"hour\"\n          }\n        },\n        \"status\": \"$status\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id.time\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id.time\",\n      \"status\": \"$_id.status\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"time\": {\n          \"$dateTrunc\": {\n            \"date\": \"$createdAt\",\n            \"unit\": \"hour\"\n          }\n        },\n        \"status\": \"$status\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id.time\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id.time\",\n      \"status\": \"$_id.status\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Jobs Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "running"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cancelled"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pending"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 8,
+        "x": 16,
+        "y": 10
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$status\",\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"status\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$status\",\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"status\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Status Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Failure Rate %",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Failure Rate %"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"total\": {\n        \"$sum\": 1\n      },\n      \"failed\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$status\",\n                \"failed\"\n              ]\n            },\n            1,\n            0\n          ]\n        }\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": {\n        \"$round\": [\n          {\n            \"$cond\": [\n              {\n                \"$gt\": [\n                  \"$total\",\n                  0\n                ]\n              },\n              {\n                \"$multiply\": [\n                  {\n                    \"$divide\": [\n                      \"$failed\",\n                      \"$total\"\n                    ]\n                  },\n                  100\n                ]\n              },\n              0\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"total\": {\n        \"$sum\": 1\n      },\n      \"failed\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$status\",\n                \"failed\"\n              ]\n            },\n            1,\n            0\n          ]\n        }\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": {\n        \"$round\": [\n          {\n            \"$cond\": [\n              {\n                \"$gt\": [\n                  \"$total\",\n                  0\n                ]\n              },\n              {\n                \"$multiply\": [\n                  {\n                    \"$divide\": [\n                      \"$failed\",\n                      \"$total\"\n                    ]\n                  },\n                  100\n                ]\n              },\n              0\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Failure Rate Over Time (%)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 11,
+      "panels": [],
+      "title": "Error Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 33
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Root Errors",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 33
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": \"ChildWorkflowFailure\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": \"ChildWorkflowFailure\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": null,\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Cascading Failures (ChildWorkflowFailure)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Root Errors"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 33
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Root Errors Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 0,
+        "y": 38
+      },
+      "id": 15,
+      "options": {
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "showValue": "auto",
+        "stacking": "off",
+        "xField": "Cause"
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$substrBytes\": [\n          {\n            \"$ifNull\": [\n              \"$error.rootCauseMessage\",\n              \"Unknown\"\n            ]\n          },\n          0,\n          100\n        ]\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"count\": -1\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"Cause\": \"$_id\",\n      \"Count\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$substrBytes\": [\n          {\n            \"$ifNull\": [\n              \"$error.rootCauseMessage\",\n              \"Unknown\"\n            ]\n          },\n          0,\n          100\n        ]\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"count\": -1\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"Cause\": \"$_id\",\n      \"Count\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 10 Root Causes",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "running"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cancelled"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pending"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$ifNull\": [\n          \"$error.failedActivity.name\",\n          \"Unknown\"\n        ]\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"count\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"activity\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$ifNull\": [\n          \"$error.failedActivity.name\",\n          \"Unknown\"\n        ]\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"count\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"activity\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Failures by Activity",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "id": 17,
+      "panels": [],
+      "title": "Jobs by Artifact Type",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "running"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cancelled"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pending"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 0,
+        "y": 51
+      },
+      "id": 18,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$artifactTypeId\",\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"count\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"artifactType\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$artifactTypeId\",\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"count\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"artifactType\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "All Jobs by Artifact Type",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "running"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cancelled"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pending"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 51
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$artifactTypeId\",\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"count\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"artifactType\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$artifactTypeId\",\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"count\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"artifactType\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Failures by Artifact Type",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^value /"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.artifactTypeName}"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 20,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"time\": {\n          \"$dateTrunc\": {\n            \"date\": \"$createdAt\",\n            \"unit\": \"hour\"\n          }\n        },\n        \"artifactTypeId\": \"$artifactTypeId\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id.time\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id.time\",\n      \"artifactTypeName\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id.artifactTypeId\"\n          }\n        }\n      },\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"time\": {\n          \"$dateTrunc\": {\n            \"date\": \"$createdAt\",\n            \"unit\": \"hour\"\n          }\n        },\n        \"artifactTypeId\": \"$artifactTypeId\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id.time\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id.time\",\n      \"artifactTypeName\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id.artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id.artifactTypeId\"\n          }\n        }\n      },\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Jobs Trend by Artifact Type",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failure Rate %"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 5
+                    },
+                    {
+                      "color": "red",
+                      "value": 20
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Completed"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 75
+      },
+      "id": 21,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"artifactTypeId\": \"$artifactTypeId\",\n        \"status\": \"$status\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$_id.artifactTypeId\",\n      \"total\": {\n        \"$sum\": \"$count\"\n      },\n      \"completed\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$_id.status\",\n                \"completed\"\n              ]\n            },\n            \"$count\",\n            0\n          ]\n        }\n      },\n      \"failed\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$_id.status\",\n                \"failed\"\n              ]\n            },\n            \"$count\",\n            0\n          ]\n        }\n      },\n      \"running\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$_id.status\",\n                \"running\"\n              ]\n            },\n            \"$count\",\n            0\n          ]\n        }\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"total\": -1\n    }\n  },\n  {\n    \"$limit\": 20\n  },\n  {\n    \"$project\": {\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"Total Jobs\": \"$total\",\n      \"Completed\": \"$completed\",\n      \"Failed\": \"$failed\",\n      \"Running\": \"$running\",\n      \"Failure Rate %\": {\n        \"$round\": [\n          {\n            \"$cond\": [\n              {\n                \"$gt\": [\n                  \"$total\",\n                  0\n                ]\n              },\n              {\n                \"$multiply\": [\n                  {\n                    \"$divide\": [\n                      \"$failed\",\n                      \"$total\"\n                    ]\n                  },\n                  100\n                ]\n              },\n              0\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"artifactTypeId\": \"$artifactTypeId\",\n        \"status\": \"$status\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$_id.artifactTypeId\",\n      \"total\": {\n        \"$sum\": \"$count\"\n      },\n      \"completed\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$_id.status\",\n                \"completed\"\n              ]\n            },\n            \"$count\",\n            0\n          ]\n        }\n      },\n      \"failed\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$_id.status\",\n                \"failed\"\n              ]\n            },\n            \"$count\",\n            0\n          ]\n        }\n      },\n      \"running\": {\n        \"$sum\": {\n          \"$cond\": [\n            {\n              \"$eq\": [\n                \"$_id.status\",\n                \"running\"\n              ]\n            },\n            \"$count\",\n            0\n          ]\n        }\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"total\": -1\n    }\n  },\n  {\n    \"$limit\": 20\n  },\n  {\n    \"$project\": {\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"Total Jobs\": \"$total\",\n      \"Completed\": \"$completed\",\n      \"Failed\": \"$failed\",\n      \"Running\": \"$running\",\n      \"Failure Rate %\": {\n        \"$round\": [\n          {\n            \"$cond\": [\n              {\n                \"$gt\": [\n                  \"$total\",\n                  0\n                ]\n              },\n              {\n                \"$multiply\": [\n                  {\n                    \"$divide\": [\n                      \"$failed\",\n                      \"$total\"\n                    ]\n                  },\n                  100\n                ]\n              },\n              0\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Artifact Types Breakdown",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "Artifact Type": 0,
+              "Total Jobs": 1,
+              "Completed": 2,
+              "Failed": 3,
+              "Running": 4,
+              "Failure Rate %": 5
+            },
+            "renameByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 85
+      },
+      "id": 22,
+      "panels": [],
+      "title": "Performance",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 86
+      },
+      "id": 23,
+      "options": {
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "showValue": "auto",
+        "stacking": "off",
+        "xField": "Artifact Type"
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"startTime\": {\n        \"$exists\": true\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$project\": {\n      \"artifactTypeId\": 1,\n      \"pendingMs\": {\n        \"$subtract\": [\n          \"$startTime\",\n          \"$createdAt\"\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\n      \"pendingMs\": {\n        \"$gt\": 0\n      }\n    }\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$artifactTypeId\",\n      \"avgPending\": {\n        \"$avg\": \"$pendingMs\"\n      },\n      \"maxPending\": {\n        \"$max\": \"$pendingMs\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"avgPending\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"Avg Pending (s)\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgPending\",\n              1000\n            ]\n          },\n          1\n        ]\n      },\n      \"Max Pending (s)\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$maxPending\",\n              1000\n            ]\n          },\n          1\n        ]\n      },\n      \"Jobs\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"startTime\": {\n        \"$exists\": true\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$project\": {\n      \"artifactTypeId\": 1,\n      \"pendingMs\": {\n        \"$subtract\": [\n          \"$startTime\",\n          \"$createdAt\"\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\n      \"pendingMs\": {\n        \"$gt\": 0\n      }\n    }\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$artifactTypeId\",\n      \"avgPending\": {\n        \"$avg\": \"$pendingMs\"\n      },\n      \"maxPending\": {\n        \"$max\": \"$pendingMs\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"avgPending\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"Avg Pending (s)\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgPending\",\n              1000\n            ]\n          },\n          1\n        ]\n      },\n      \"Max Pending (s)\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$maxPending\",\n              1000\n            ]\n          },\n          1\n        ]\n      },\n      \"Jobs\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Pending Time by Artifact Type (seconds)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 98
+      },
+      "id": 24,
+      "options": {
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "showValue": "auto",
+        "stacking": "off",
+        "xField": "Artifact Type"
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"execution.totalDuration\": {\n        \"$exists\": true,\n        \"$gt\": 0\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$artifactTypeId\",\n      \"avgDuration\": {\n        \"$avg\": \"$execution.totalDuration\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"avgDuration\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"Avg Duration (min)\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgDuration\",\n              60\n            ]\n          },\n          1\n        ]\n      },\n      \"Jobs\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"execution.totalDuration\": {\n        \"$exists\": true,\n        \"$gt\": 0\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": \"$artifactTypeId\",\n      \"avgDuration\": {\n        \"$avg\": \"$execution.totalDuration\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"avgDuration\": -1\n    }\n  },\n  {\n    \"$limit\": 15\n  },\n  {\n    \"$project\": {\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$_id\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$_id\"\n          }\n        }\n      },\n      \"Avg Duration (min)\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgDuration\",\n              60\n            ]\n          },\n          1\n        ]\n      },\n      \"Jobs\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Duration by Artifact Type (minutes)",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 110
+      },
+      "id": 25,
+      "panels": [],
+      "title": "Recent Jobs",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 500
+              },
+              {
+                "id": "custom.wrapText",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Artifact Type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Job ID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 111
+      },
+      "id": 26,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 100\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Status\": \"$status\",\n      \"Error\": {\n        \"$concat\": [\n          {\n            \"$ifNull\": [\n              \"$error.name\",\n              \"Error\"\n            ]\n          },\n          \": \",\n          {\n            \"$substrBytes\": [\n              {\n                \"$ifNull\": [\n                  \"$error.rootCauseMessage\",\n                  \"Unknown\"\n                ]\n              },\n              0,\n              120\n            ]\n          }\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 100\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Status\": \"$status\",\n      \"Error\": {\n        \"$concat\": [\n          {\n            \"$ifNull\": [\n              \"$error.name\",\n              \"Error\"\n            ]\n          },\n          \": \",\n          {\n            \"$substrBytes\": [\n              {\n                \"$ifNull\": [\n                  \"$error.rootCauseMessage\",\n                  \"Unknown\"\n                ]\n              },\n              0,\n              120\n            ]\n          }\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Failed Jobs",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "createdAt": 0,
+              "Artifact Type": 1,
+              "Status": 2,
+              "Error": 3,
+              "Job ID": 4
+            },
+            "renameByName": {
+              "createdAt": "Created At"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 400
+              },
+              {
+                "id": "custom.wrapText",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Artifact Type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Job ID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 126
+      },
+      "id": 27,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 50\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Status\": \"$status\",\n      \"Error\": {\n        \"$cond\": [\n          {\n            \"$eq\": [\n              \"$status\",\n              \"failed\"\n            ]\n          },\n          {\n            \"$substrBytes\": [\n              {\n                \"$ifNull\": [\n                  \"$error.rootCauseMessage\",\n                  \"No message\"\n                ]\n              },\n              0,\n              80\n            ]\n          },\n          \"\"\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 50\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Status\": \"$status\",\n      \"Error\": {\n        \"$cond\": [\n          {\n            \"$eq\": [\n              \"$status\",\n              \"failed\"\n            ]\n          },\n          {\n            \"$substrBytes\": [\n              {\n                \"$ifNull\": [\n                  \"$error.rootCauseMessage\",\n                  \"No message\"\n                ]\n              },\n              0,\n              80\n            ]\n          },\n          \"\"\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Jobs (All Statuses)",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "createdAt": 0,
+              "Artifact Type": 1,
+              "Status": 2,
+              "Job ID": 3,
+              "Error": 4
+            },
+            "renameByName": {
+              "createdAt": "Created At"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "tags": [
+    "artifacts",
+    "eko",
+    "mongodb",
+    "monitoring"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "description": "Filter all panels by a specific artifact type",
+        "hide": 0,
+        "includeAll": true,
+        "allValue": "all",
+        "label": "Artifact Type",
+        "multi": false,
+        "name": "_artifact_type",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "Colorized Master Video",
+            "value": "68ff690c848c3eae6510ab02"
+          },
+          {
+            "selected": false,
+            "text": "Normalized Master Video",
+            "value": "680768f31ef32e607151e4b0"
+          },
+          {
+            "selected": false,
+            "text": "Full Product Feature Video",
+            "value": "68e66f1ed394af72c52e0f07"
+          },
+          {
+            "selected": false,
+            "text": "Feature Focus Video",
+            "value": "68c80874c49b0cf616cabc01"
+          },
+          {
+            "selected": false,
+            "text": "Gallery",
+            "value": "67ebf0a2c98256999f900fe6"
+          },
+          {
+            "selected": false,
+            "text": "Product 360 Video",
+            "value": "67e3108d7fa4577d5789087a"
+          },
+          {
+            "selected": false,
+            "text": "Fast Closeup Sequence Video",
+            "value": "68e302de1dd85ffb3bfa51cf"
+          },
+          {
+            "selected": false,
+            "text": "Intro to 360 Video",
+            "value": "68752762df6a45a8e6c4e91d"
+          },
+          {
+            "selected": false,
+            "text": "Dimensions Video",
+            "value": "68062eb2682737ec93ac6350"
+          },
+          {
+            "selected": false,
+            "text": "Action Video",
+            "value": "6808cbfefd01c05a31cea41c"
+          },
+          {
+            "selected": false,
+            "text": "Ingredients Video",
+            "value": "68e6047030e7001c4d62baea"
+          },
+          {
+            "selected": false,
+            "text": "Unbox Video",
+            "value": "68dff14630e7001c4d62bae7"
+          },
+          {
+            "selected": false,
+            "text": "Badge Overlay Video",
+            "value": "68e603ea30e7001c4d62bae9"
+          },
+          {
+            "selected": false,
+            "text": "Update Capture Request Status",
+            "value": "6857a0f0d0b1c2a3e4f56789"
+          },
+          {
+            "selected": false,
+            "text": "Suggest Color Correction",
+            "value": "6465c12fc5433625ec7f491b"
+          },
+          {
+            "selected": false,
+            "text": "Set Shots Color Correction",
+            "value": "6825cf5470d379f31cef9423"
+          }
+        ],
+        "query": "Colorized Master Video : 68ff690c848c3eae6510ab02,Normalized Master Video : 680768f31ef32e607151e4b0,Full Product Feature Video : 68e66f1ed394af72c52e0f07,Feature Focus Video : 68c80874c49b0cf616cabc01,Gallery : 67ebf0a2c98256999f900fe6,Product 360 Video : 67e3108d7fa4577d5789087a,Fast Closeup Sequence Video : 68e302de1dd85ffb3bfa51cf,Intro to 360 Video : 68752762df6a45a8e6c4e91d,Dimensions Video : 68062eb2682737ec93ac6350,Action Video : 6808cbfefd01c05a31cea41c,Ingredients Video : 68e6047030e7001c4d62baea,Unbox Video : 68dff14630e7001c4d62bae7,Badge Overlay Video : 68e603ea30e7001c4d62bae9,Update Capture Request Status : 6857a0f0d0b1c2a3e4f56789,Suggest Color Correction : 6465c12fc5433625ec7f491b,Set Shots Color Correction : 6825cf5470d379f31cef9423",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Artifact Jobs Monitoring",
+  "uid": "artifact-jobs-monitoring",
+  "version": 1,
+  "weekStart": ""
+}
