@@ -524,35 +524,61 @@ pid += 1; y += 12
 panels.append(row_panel("Recent Jobs", {"h": 1, "w": 24, "x": 0, "y": y}, pid))
 pid += 1; y += 1
 
-panels.append(table_panel("Recent Failed Jobs", [
-    {"$match": {**_base_match(), "status": "failed"}},
+# Root errors only (excludes ChildWorkflowFailure cascading errors)
+panels.append(table_panel("Failed Jobs - Root Errors (export via Inspect → Data → Download)", [
+    {"$match": {**_base_match(), "status": "failed", "error.name": {"$ne": "ChildWorkflowFailure"}}},
     {"$sort": {"createdAt": -1}},
-    {"$limit": 100},
+    {"$limit": 500},
     {"$project": {
         "createdAt": 1,
         "Job ID": {"$toString": "$_id"},
         "Artifact Type": _artifact_name_switch("$artifactTypeId"),
-        "Status": "$status",
-        "Error": {"$concat": [
-            {"$ifNull": ["$error.name", "Error"]}, ": ",
-            {"$substrBytes": [{"$ifNull": ["$error.rootCauseMessage", "Unknown"]}, 0, 120]}
-        ]},
+        "Error Name": {"$ifNull": ["$error.name", "Unknown"]},
+        "Root Cause": {"$substrBytes": [{"$ifNull": ["$error.rootCauseMessage", "Unknown"]}, 0, 200]},
+        "Failed Activity": {"$ifNull": ["$error.failedActivity.name", ""]},
         "_id": 0
     }}
 ], {"h": 15, "w": 24, "x": 0, "y": y}, pid,
     overrides=[
-        {"matcher": {"id": "byName", "options": "Error"}, "properties": [{"id": "custom.width", "value": 500}, {"id": "custom.wrapText", "value": True}]},
-        {"matcher": {"id": "byName", "options": "Artifact Type"}, "properties": [{"id": "custom.width", "value": 200}]},
-        {"matcher": {"id": "byName", "options": "Status"}, "properties": [
-            {"id": "custom.cellOptions", "value": {"type": "color-text"}},
-            {"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}},
-            {"id": "custom.width", "value": 80}
-        ]},
+        {"matcher": {"id": "byName", "options": "Root Cause"}, "properties": [{"id": "custom.width", "value": 450}, {"id": "custom.wrapText", "value": True}]},
+        {"matcher": {"id": "byName", "options": "Artifact Type"}, "properties": [{"id": "custom.width", "value": 180}]},
+        {"matcher": {"id": "byName", "options": "Error Name"}, "properties": [{"id": "custom.width", "value": 180}]},
+        {"matcher": {"id": "byName", "options": "Failed Activity"}, "properties": [{"id": "custom.width", "value": 180}]},
         {"matcher": {"id": "byName", "options": "Job ID"}, "properties": [{"id": "custom.width", "value": 220}]}
     ],
     transformations=[{"id": "organize", "options": {
         "excludeByName": {},
-        "indexByName": {"createdAt": 0, "Artifact Type": 1, "Status": 2, "Error": 3, "Job ID": 4},
+        "indexByName": {"createdAt": 0, "Artifact Type": 1, "Error Name": 2, "Root Cause": 3, "Failed Activity": 4, "Job ID": 5},
+        "renameByName": {"createdAt": "Created At"}
+    }}]))
+pid += 1; y += 15
+
+# All failed jobs including cascading errors
+panels.append(table_panel("Failed Jobs - All (including cascading errors)", [
+    {"$match": {**_base_match(), "status": "failed"}},
+    {"$sort": {"createdAt": -1}},
+    {"$limit": 500},
+    {"$project": {
+        "createdAt": 1,
+        "Job ID": {"$toString": "$_id"},
+        "Artifact Type": _artifact_name_switch("$artifactTypeId"),
+        "Error Name": {"$ifNull": ["$error.name", "Unknown"]},
+        "Root Cause": {"$substrBytes": [{"$ifNull": ["$error.rootCauseMessage", "Unknown"]}, 0, 200]},
+        "Failed Activity": {"$ifNull": ["$error.failedActivity.name", ""]},
+        "Is Cascade": {"$cond": [{"$eq": ["$error.name", "ChildWorkflowFailure"]}, "Yes", "No"]},
+        "_id": 0
+    }}
+], {"h": 15, "w": 24, "x": 0, "y": y}, pid,
+    overrides=[
+        {"matcher": {"id": "byName", "options": "Root Cause"}, "properties": [{"id": "custom.width", "value": 400}, {"id": "custom.wrapText", "value": True}]},
+        {"matcher": {"id": "byName", "options": "Artifact Type"}, "properties": [{"id": "custom.width", "value": 180}]},
+        {"matcher": {"id": "byName", "options": "Error Name"}, "properties": [{"id": "custom.width", "value": 180}]},
+        {"matcher": {"id": "byName", "options": "Job ID"}, "properties": [{"id": "custom.width", "value": 220}]},
+        {"matcher": {"id": "byName", "options": "Is Cascade"}, "properties": [{"id": "custom.width", "value": 90}]}
+    ],
+    transformations=[{"id": "organize", "options": {
+        "excludeByName": {},
+        "indexByName": {"createdAt": 0, "Artifact Type": 1, "Error Name": 2, "Root Cause": 3, "Failed Activity": 4, "Is Cascade": 5, "Job ID": 6},
         "renameByName": {"createdAt": "Created At"}
     }}]))
 pid += 1; y += 15

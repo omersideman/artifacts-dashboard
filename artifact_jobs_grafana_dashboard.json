@@ -2137,12 +2137,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Error"
+              "options": "Root Cause"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 500
+                "value": 450
               },
               {
                 "id": "custom.wrapText",
@@ -2158,32 +2158,31 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 200
+                "value": 180
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Status"
+              "options": "Error Name"
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              },
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed Activity"
+            },
+            "properties": [
               {
                 "id": "custom.width",
-                "value": 80
+                "value": 180
               }
             ]
           },
@@ -2219,13 +2218,13 @@
             "type": "grafana-mongodb-datasource",
             "uid": "bf98gc6lkomioc"
           },
-          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 100\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Status\": \"$status\",\n      \"Error\": {\n        \"$concat\": [\n          {\n            \"$ifNull\": [\n              \"$error.name\",\n              \"Error\"\n            ]\n          },\n          \": \",\n          {\n            \"$substrBytes\": [\n              {\n                \"$ifNull\": [\n                  \"$error.rootCauseMessage\",\n                  \"Unknown\"\n                ]\n              },\n              0,\n              120\n            ]\n          }\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
-          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 100\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Status\": \"$status\",\n      \"Error\": {\n        \"$concat\": [\n          {\n            \"$ifNull\": [\n              \"$error.name\",\n              \"Error\"\n            ]\n          },\n          \": \",\n          {\n            \"$substrBytes\": [\n              {\n                \"$ifNull\": [\n                  \"$error.rootCauseMessage\",\n                  \"Unknown\"\n                ]\n              },\n              0,\n              120\n            ]\n          }\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 500\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Error Name\": {\n        \"$ifNull\": [\n          \"$error.name\",\n          \"Unknown\"\n        ]\n      },\n      \"Root Cause\": {\n        \"$substrBytes\": [\n          {\n            \"$ifNull\": [\n              \"$error.rootCauseMessage\",\n              \"Unknown\"\n            ]\n          },\n          0,\n          200\n        ]\n      },\n      \"Failed Activity\": {\n        \"$ifNull\": [\n          \"$error.failedActivity.name\",\n          \"\"\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\",\n      \"error.name\": {\n        \"$ne\": \"ChildWorkflowFailure\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 500\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Error Name\": {\n        \"$ifNull\": [\n          \"$error.name\",\n          \"Unknown\"\n        ]\n      },\n      \"Root Cause\": {\n        \"$substrBytes\": [\n          {\n            \"$ifNull\": [\n              \"$error.rootCauseMessage\",\n              \"Unknown\"\n            ]\n          },\n          0,\n          200\n        ]\n      },\n      \"Failed Activity\": {\n        \"$ifNull\": [\n          \"$error.failedActivity.name\",\n          \"\"\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
           "queryType": "query",
           "refId": "A"
         }
       ],
-      "title": "Recent Failed Jobs",
+      "title": "Failed Jobs - Root Errors (export via Inspect \u2192 Data \u2192 Download)",
       "type": "table",
       "transformations": [
         {
@@ -2235,9 +2234,151 @@
             "indexByName": {
               "createdAt": 0,
               "Artifact Type": 1,
-              "Status": 2,
-              "Error": 3,
-              "Job ID": 4
+              "Error Name": 2,
+              "Root Cause": 3,
+              "Failed Activity": 4,
+              "Job ID": 5
+            },
+            "renameByName": {
+              "createdAt": "Created At"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Root Cause"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 400
+              },
+              {
+                "id": "custom.wrapText",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Artifact Type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error Name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Job ID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Is Cascade"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 126
+      },
+      "id": 27,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 500\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Error Name\": {\n        \"$ifNull\": [\n          \"$error.name\",\n          \"Unknown\"\n        ]\n      },\n      \"Root Cause\": {\n        \"$substrBytes\": [\n          {\n            \"$ifNull\": [\n              \"$error.rootCauseMessage\",\n              \"Unknown\"\n            ]\n          },\n          0,\n          200\n        ]\n      },\n      \"Failed Activity\": {\n        \"$ifNull\": [\n          \"$error.failedActivity.name\",\n          \"\"\n        ]\n      },\n      \"Is Cascade\": {\n        \"$cond\": [\n          {\n            \"$eq\": [\n              \"$error.name\",\n              \"ChildWorkflowFailure\"\n            ]\n          },\n          \"Yes\",\n          \"No\"\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"failed\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$sort\": {\n      \"createdAt\": -1\n    }\n  },\n  {\n    \"$limit\": 500\n  },\n  {\n    \"$project\": {\n      \"createdAt\": 1,\n      \"Job ID\": {\n        \"$toString\": \"$_id\"\n      },\n      \"Artifact Type\": {\n        \"$switch\": {\n          \"branches\": [\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68ff690c848c3eae6510ab02\"\n                ]\n              },\n              \"then\": \"Colorized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"680768f31ef32e607151e4b0\"\n                ]\n              },\n              \"then\": \"Normalized Master Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e66f1ed394af72c52e0f07\"\n                ]\n              },\n              \"then\": \"Full Product Feature Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68c80874c49b0cf616cabc01\"\n                ]\n              },\n              \"then\": \"Feature Focus Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67ebf0a2c98256999f900fe6\"\n                ]\n              },\n              \"then\": \"Gallery\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"67e3108d7fa4577d5789087a\"\n                ]\n              },\n              \"then\": \"Product 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e302de1dd85ffb3bfa51cf\"\n                ]\n              },\n              \"then\": \"Fast Closeup Sequence Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68752762df6a45a8e6c4e91d\"\n                ]\n              },\n              \"then\": \"Intro to 360 Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68062eb2682737ec93ac6350\"\n                ]\n              },\n              \"then\": \"Dimensions Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6808cbfefd01c05a31cea41c\"\n                ]\n              },\n              \"then\": \"Action Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e6047030e7001c4d62baea\"\n                ]\n              },\n              \"then\": \"Ingredients Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68dff14630e7001c4d62bae7\"\n                ]\n              },\n              \"then\": \"Unbox Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"68e603ea30e7001c4d62bae9\"\n                ]\n              },\n              \"then\": \"Badge Overlay Video\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6857a0f0d0b1c2a3e4f56789\"\n                ]\n              },\n              \"then\": \"Update Capture Request Status\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6465c12fc5433625ec7f491b\"\n                ]\n              },\n              \"then\": \"Suggest Color Correction\"\n            },\n            {\n              \"case\": {\n                \"$eq\": [\n                  {\n                    \"$toString\": \"$artifactTypeId\"\n                  },\n                  \"6825cf5470d379f31cef9423\"\n                ]\n              },\n              \"then\": \"Set Shots Color Correction\"\n            }\n          ],\n          \"default\": {\n            \"$toString\": \"$artifactTypeId\"\n          }\n        }\n      },\n      \"Error Name\": {\n        \"$ifNull\": [\n          \"$error.name\",\n          \"Unknown\"\n        ]\n      },\n      \"Root Cause\": {\n        \"$substrBytes\": [\n          {\n            \"$ifNull\": [\n              \"$error.rootCauseMessage\",\n              \"Unknown\"\n            ]\n          },\n          0,\n          200\n        ]\n      },\n      \"Failed Activity\": {\n        \"$ifNull\": [\n          \"$error.failedActivity.name\",\n          \"\"\n        ]\n      },\n      \"Is Cascade\": {\n        \"$cond\": [\n          {\n            \"$eq\": [\n              \"$error.name\",\n              \"ChildWorkflowFailure\"\n            ]\n          },\n          \"Yes\",\n          \"No\"\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed Jobs - All (including cascading errors)",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "createdAt": 0,
+              "Artifact Type": 1,
+              "Error Name": 2,
+              "Root Cause": 3,
+              "Failed Activity": 4,
+              "Is Cascade": 5,
+              "Job ID": 6
             },
             "renameByName": {
               "createdAt": "Created At"
@@ -2332,9 +2473,9 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 126
+        "y": 141
       },
-      "id": 27,
+      "id": 28,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
