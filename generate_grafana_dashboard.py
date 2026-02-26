@@ -350,6 +350,35 @@ panels.append(timeseries_panel("Failure Rate Over Time (%)", [
     y_axis_label="Failure Rate %"))
 pid += 1; y += 10
 
+# ─── Average Duration Over Time ───
+
+panels.append(timeseries_panel("Average Duration Over Time (minutes)", [
+    {"$match": {**_base_match(), "execution.totalDuration": {"$exists": True, "$gt": 0}}},
+    {"$group": {"_id": {"$dateTrunc": {"date": "$createdAt", "unit": "hour"}},
+                "avgDuration": {"$avg": "$execution.totalDuration"},
+                "count": {"$sum": 1}}},
+    {"$sort": {"_id": 1}},
+    {"$project": {"time": "$_id",
+                  "value": {"$round": [{"$divide": ["$avgDuration", 60]}, 1]},
+                  "_id": 0}}
+], {"h": 10, "w": 24, "x": 0, "y": y}, pid,
+    overrides=[{"matcher": {"id": "byName", "options": "value"}, "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}, {"id": "displayName", "value": "Avg Duration (min)"}]}],
+    y_axis_label="Minutes"))
+pid += 1; y += 10
+
+# ─── Pending Jobs Over Time ───
+
+panels.append(timeseries_panel("Pending Jobs Over Time", [
+    {"$match": {**_base_match(), "status": "pending"}},
+    {"$group": {"_id": {"$dateTrunc": {"date": "$createdAt", "unit": "hour"}},
+                "count": {"$sum": 1}}},
+    {"$sort": {"_id": 1}},
+    {"$project": {"time": "$_id", "value": "$count", "_id": 0}}
+], {"h": 10, "w": 24, "x": 0, "y": y}, pid,
+    overrides=[{"matcher": {"id": "byName", "options": "value"}, "properties": [{"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}}, {"id": "displayName", "value": "Pending Jobs"}]}],
+    y_axis_label="Jobs"))
+pid += 1; y += 10
+
 # ─── Error Analysis Row ───
 
 panels.append(row_panel("Error Analysis", {"h": 1, "w": 24, "x": 0, "y": y}, pid))

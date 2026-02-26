@@ -896,14 +896,256 @@
       "type": "timeseries"
     },
     {
-      "collapsed": false,
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Minutes",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Avg Duration (min)"
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
-        "h": 1,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 32
       },
       "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"execution.totalDuration\": {\n        \"$exists\": true,\n        \"$gt\": 0\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"avgDuration\": {\n        \"$avg\": \"$execution.totalDuration\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgDuration\",\n              60\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"execution.totalDuration\": {\n        \"$exists\": true,\n        \"$gt\": 0\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"avgDuration\": {\n        \"$avg\": \"$execution.totalDuration\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": {\n        \"$round\": [\n          {\n            \"$divide\": [\n              \"$avgDuration\",\n              60\n            ]\n          },\n          1\n        ]\n      },\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Average Duration Over Time (minutes)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "bf98gc6lkomioc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Jobs",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Pending Jobs"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "bf98gc6lkomioc"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"pending\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"pending\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Pending Jobs Over Time",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "id": 13,
       "panels": [],
       "title": "Error Analysis",
       "type": "row"
@@ -945,9 +1187,9 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 33
+        "y": 53
       },
-      "id": 12,
+      "id": 14,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1014,9 +1256,9 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 33
+        "y": 53
       },
-      "id": 13,
+      "id": 15,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1137,9 +1379,9 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 53
       },
-      "id": 14,
+      "id": 16,
       "options": {
         "legend": {
           "calcs": [
@@ -1197,9 +1439,9 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 58
       },
-      "id": 15,
+      "id": 17,
       "options": {
         "barWidth": 0.7,
         "fullHighlight": false,
@@ -1337,9 +1579,9 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 58
       },
-      "id": 16,
+      "id": 18,
       "options": {
         "legend": {
           "displayMode": "table",
@@ -1386,9 +1628,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 50
+        "y": 70
       },
-      "id": 17,
+      "id": 19,
       "panels": [],
       "title": "Jobs by Artifact Type",
       "type": "row"
@@ -1496,9 +1738,9 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 51
+        "y": 71
       },
-      "id": 18,
+      "id": 20,
       "options": {
         "legend": {
           "displayMode": "table",
@@ -1642,9 +1884,9 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 51
+        "y": 71
       },
-      "id": 19,
+      "id": 21,
       "options": {
         "legend": {
           "displayMode": "table",
@@ -1765,9 +2007,9 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 83
       },
-      "id": 20,
+      "id": 22,
       "options": {
         "legend": {
           "calcs": [
@@ -1914,9 +2156,9 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 95
       },
-      "id": 21,
+      "id": 23,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
@@ -1960,9 +2202,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 85
+        "y": 105
       },
-      "id": 22,
+      "id": 24,
       "panels": [],
       "title": "Performance",
       "type": "row"
@@ -1993,9 +2235,9 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 86
+        "y": 106
       },
-      "id": 23,
+      "id": 25,
       "options": {
         "barWidth": 0.7,
         "fullHighlight": false,
@@ -2056,9 +2298,9 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 98
+        "y": 118
       },
-      "id": 24,
+      "id": 26,
       "options": {
         "barWidth": 0.7,
         "fullHighlight": false,
@@ -2099,9 +2341,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 110
+        "y": 130
       },
-      "id": 25,
+      "id": 27,
       "panels": [],
       "title": "Recent Jobs",
       "type": "row"
@@ -2204,9 +2446,9 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 111
+        "y": 131
       },
-      "id": 26,
+      "id": 28,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
@@ -2344,9 +2586,9 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 126
+        "y": 146
       },
-      "id": 27,
+      "id": 29,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
@@ -2473,9 +2715,9 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 141
+        "y": 161
       },
-      "id": 28,
+      "id": 30,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
