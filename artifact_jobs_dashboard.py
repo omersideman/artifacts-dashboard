@@ -194,7 +194,7 @@ if connect_button or st.session_state.connected:
             {"$group": {"_id": None, "avgPending": {"$avg": "$pendingMs"}}}
         ]))
         avg_pending_ms = pending_agg[0]["avgPending"] if pending_agg else 0
-        avg_pending_s = (avg_pending_ms or 0) / 1000
+        avg_pending_min = (avg_pending_ms or 0) / 1000 / 60
         
         # Metrics row
         col1, col2, col3, col4, col5, col6 = st.columns(6)
@@ -217,8 +217,8 @@ if connect_button or st.session_state.connected:
                 duration_label = "N/A"
             st.metric("Avg Duration", duration_label)
         with col6:
-            if avg_pending_s > 0:
-                pending_label = f"{avg_pending_s:.0f}s" if avg_pending_s < 60 else f"{avg_pending_s/60:.1f}m"
+            if avg_pending_min > 0:
+                pending_label = f"{avg_pending_min:.1f}m" if avg_pending_min < 60 else f"{avg_pending_min/60:.1f}h"
             else:
                 pending_label = "N/A"
             st.metric("Avg Pending", pending_label)
@@ -594,8 +594,8 @@ if connect_button or st.session_state.connected:
         if pending_by_type_agg:
             pending_type_data = [{
                 "Artifact Type": resolve_artifact_name(doc["_id"]),
-                "Avg Pending (s)": round(doc["avgPending"] / 1000, 1),
-                "Max Pending (s)": round(doc["maxPending"] / 1000, 1),
+                "Avg Pending (min)": round(doc["avgPending"] / 1000 / 60, 1),
+                "Max Pending (min)": round(doc["maxPending"] / 1000 / 60, 1),
                 "Jobs": doc["count"]
             } for doc in pending_by_type_agg]
             
@@ -603,11 +603,11 @@ if connect_button or st.session_state.connected:
             
             fig_pending = px.bar(
                 pending_type_df,
-                x="Avg Pending (s)",
+                x="Avg Pending (min)",
                 y="Artifact Type",
                 orientation="h",
-                title="Avg Pending Time by Artifact Type (seconds)",
-                hover_data=["Max Pending (s)", "Jobs"],
+                title="Avg Pending Time by Artifact Type (minutes)",
+                hover_data=["Max Pending (min)", "Jobs"],
             )
             fig_pending.update_layout(height=max(300, len(pending_type_data) * 35 + 100))
             st.plotly_chart(fig_pending, use_container_width=True)

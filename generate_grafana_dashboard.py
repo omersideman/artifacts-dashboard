@@ -6,7 +6,7 @@ Uses the grafana-mongodb-datasource plugin and mirrors all panels/queries.
 import json
 import os
 
-DATASOURCE = {"type": "grafana-mongodb-datasource", "uid": "bf98gc6lkomioc"}
+DATASOURCE = {"type": "grafana-mongodb-datasource", "uid": "$datasource"}
 COLLECTION = "artifactJobs"
 PLUGIN_VERSION = "12.4.0-21959849188.patch2"
 
@@ -58,6 +58,33 @@ def _type_filter_stages_json():
   {
     "$match": {"__passesTypeFilter": true}
   }"""
+
+
+def _build_datasource_variable():
+    """Build a Grafana datasource variable to switch between MongoDB environments.
+
+    Regex limits the dropdown to production and eko2 only.
+    Default is set to mongodb-production-artifacts (by name; Grafana resolves to UID on load).
+    """
+    return {
+        "current": {
+            "selected": True,
+            "text": "mongodb-production-artifacts",
+            "value": "mongodb-production-artifacts",
+        },
+        "description": "Select MongoDB environment (Production / Development eko2)",
+        "hide": 0,
+        "includeAll": False,
+        "label": "Environment",
+        "multi": False,
+        "name": "datasource",
+        "options": [],
+        "query": "grafana-mongodb-datasource",
+        "refresh": 1,
+        "regex": "^(mongodb-production-artifacts|grafana-mongodb-eko2-artifacts)$",
+        "skipUrlSync": False,
+        "type": "datasource",
+    }
 
 
 def _build_artifact_type_variable():
@@ -307,14 +334,14 @@ panels.append(stat_panel("Avg Duration", [
 ], {"h": 6, "w": 4, "x": 16, "y": y}, pid, unit="m", decimals=1))
 pid += 1
 
-# Avg Pending Time (seconds)
+# Avg Pending Time (minutes)
 panels.append(stat_panel("Avg Pending Time", [
     {"$match": {**_base_match(), "startTime": {"$exists": True}}},
     {"$project": {"pendingMs": {"$subtract": ["$startTime", "$createdAt"]}}},
     {"$match": {"pendingMs": {"$gt": 0}}},
     {"$group": {"_id": None, "avgPending": {"$avg": "$pendingMs"}}},
-    {"$project": {"value": {"$round": [{"$divide": ["$avgPending", 1000]}, 1]}, "_id": 0}}
-], {"h": 6, "w": 4, "x": 20, "y": y}, pid, unit="s", decimals=1))
+    {"$project": {"value": {"$round": [{"$divide": ["$avgPending", 60000]}, 1]}, "_id": 0}}
+], {"h": 6, "w": 4, "x": 20, "y": y}, pid, unit="m", decimals=1))
 pid += 1; y += 6
 
 # ─── Jobs Over Time (timeseries) + Status Distribution (piechart) ───
@@ -511,7 +538,7 @@ pid += 1; y += 10
 panels.append(row_panel("Performance", {"h": 1, "w": 24, "x": 0, "y": y}, pid))
 pid += 1; y += 1
 
-panels.append(barchart_panel("Avg Pending Time by Artifact Type (seconds)", [
+panels.append(barchart_panel("Avg Pending Time by Artifact Type (minutes)", [
     {"$match": {**_base_match(), "startTime": {"$exists": True}}},
     {"$project": {"artifactTypeId": 1, "pendingMs": {"$subtract": ["$startTime", "$createdAt"]}}},
     {"$match": {"pendingMs": {"$gt": 0}}},
@@ -523,8 +550,8 @@ panels.append(barchart_panel("Avg Pending Time by Artifact Type (seconds)", [
     {"$limit": 15},
     {"$project": {
         "Artifact Type": _artifact_name_switch("$_id"),
-        "Avg Pending (s)": {"$round": [{"$divide": ["$avgPending", 1000]}, 1]},
-        "Max Pending (s)": {"$round": [{"$divide": ["$maxPending", 1000]}, 1]},
+        "Avg Pending (min)": {"$round": [{"$divide": ["$avgPending", 60000]}, 1]},
+        "Max Pending (min)": {"$round": [{"$divide": ["$maxPending", 60000]}, 1]},
         "Jobs": "$count",
         "_id": 0
     }}
@@ -688,7 +715,7 @@ dashboard = {
     "refresh": "30s",
     "schemaVersion": 42,
     "tags": ["artifacts", "eko", "mongodb", "monitoring"],
-    "templating": {"list": [_build_artifact_type_variable()]},
+    "templating": {"list": [_build_datasource_variable(), _build_artifact_type_variable()]},
     "time": {"from": "now-24h", "to": "now"},
     "timepicker": {},
     "timezone": "browser",
