@@ -548,6 +548,31 @@ panels.append(barchart_panel("Avg Duration by Artifact Type (minutes)", [
 ], {"h": 12, "w": 24, "x": 0, "y": y}, pid, x_field="Artifact Type"))
 pid += 1; y += 12
 
+# Avg Jobs Per Shot by Artifact Type
+panels.append(barchart_panel("Avg Jobs Per Shot by Artifact Type", [
+    {"$match": {**_base_match()}},
+    {"$unwind": "$inputs"},
+    {"$match": {"inputs.name": "inputShot"}},
+    {"$group": {
+        "_id": {"artifactTypeId": "$artifactTypeId", "shotId": "$inputs.data.id"},
+        "jobCount": {"$sum": 1}
+    }},
+    {"$group": {
+        "_id": "$_id.artifactTypeId",
+        "avgJobsPerShot": {"$avg": "$jobCount"},
+        "totalShots": {"$sum": 1}
+    }},
+    {"$sort": {"avgJobsPerShot": -1}},
+    {"$limit": 15},
+    {"$project": {
+        "Artifact Type": _artifact_name_switch("$_id"),
+        "Avg Jobs Per Shot": {"$round": ["$avgJobsPerShot", 1]},
+        "Total Shots": "$totalShots",
+        "_id": 0
+    }}
+], {"h": 12, "w": 24, "x": 0, "y": y}, pid, x_field="Artifact Type"))
+pid += 1; y += 12
+
 # ─── Recent Jobs Table ───
 
 panels.append(row_panel("Recent Jobs", {"h": 1, "w": 24, "x": 0, "y": y}, pid))

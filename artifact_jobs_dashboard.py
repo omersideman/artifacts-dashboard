@@ -316,6 +316,61 @@ if connect_button or st.session_state.connected:
             fig_failure_rate.update_layout(height=350, yaxis_range=[0, max(df_failure_rate["Failure Rate %"].max() * 1.2, 5)])
             st.plotly_chart(fig_failure_rate, use_container_width=True)
         
+        # --- Average Duration Over Time ---
+        duration_over_time_agg = list(collection.aggregate([
+            match_stage,
+            {"$match": {"execution.totalDuration": {"$exists": True, "$gt": 0}}},
+            {"$group": {
+                "_id": {"$dateTrunc": {"date": "$createdAt", "unit": "hour"}},
+                "avgDuration": {"$avg": "$execution.totalDuration"},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]))
+        
+        if duration_over_time_agg:
+            st.subheader("Average Duration Over Time")
+            
+            duration_time_data = [{
+                "hour": doc["_id"],
+                "Avg Duration (min)": round(doc["avgDuration"] / 60, 1),
+                "Jobs": doc["count"]
+            } for doc in duration_over_time_agg]
+            
+            df_duration_time = pd.DataFrame(duration_time_data)
+            
+            fig_duration_time = px.line(
+                df_duration_time,
+                x="hour",
+                y="Avg Duration (min)",
+                title="Avg Duration by Hour (minutes)",
+                labels={"hour": "Time"},
+                markers=True,
+            )
+            fig_duration_time.update_traces(line_color="#1565c0")
+            fig_duration_time.update_layout(height=350)
+            st.plotly_chart(fig_duration_time, use_container_width=True)
+        
+        # --- Pending Jobs Over Time ---
+        if timeline_agg:
+            pending_data = [
+                {"hour": doc["_id"]["hour"], "count": doc["count"]}
+                for doc in timeline_agg
+                if (doc["_id"]["status"] or "unknown") == "pending"
+            ]
+            if pending_data:
+                st.subheader("Pending Jobs Over Time")
+                df_pending = pd.DataFrame(pending_data)
+                fig_pending_time = px.line(
+                    df_pending, x="hour", y="count",
+                    title="Pending Jobs by Hour",
+                    labels={"hour": "Time", "count": "Pending Jobs"},
+                    markers=True,
+                )
+                fig_pending_time.update_traces(line_color="#ff6f00")
+                fig_pending_time.update_layout(height=350)
+                st.plotly_chart(fig_pending_time, use_container_width=True)
+        
         # --- Error Analysis (only if there are failures) ---
         if failed_count > 0:
             st.divider()
@@ -559,6 +614,49 @@ if connect_button or st.session_state.connected:
         else:
             st.info("No pending time data available (jobs missing startTime)")
                     
+        # --- Avg Jobs Per Shot by Artifact Type ---
+        st.divider()
+        st.subheader("Avg Jobs Per Shot by Artifact Type")
+        
+        jobs_per_shot_agg = list(collection.aggregate([
+            match_stage,
+            {"$unwind": "$inputs"},
+            {"$match": {"inputs.name": "inputShot"}},
+            {"$group": {
+                "_id": {"artifactTypeId": "$artifactTypeId", "shotId": "$inputs.data.id"},
+                "jobCount": {"$sum": 1}
+            }},
+            {"$group": {
+                "_id": "$_id.artifactTypeId",
+                "avgJobsPerShot": {"$avg": "$jobCount"},
+                "totalShots": {"$sum": 1}
+            }},
+            {"$sort": {"avgJobsPerShot": -1}},
+            {"$limit": 15}
+        ]))
+        
+        if jobs_per_shot_agg:
+            jps_data = [{
+                "Artifact Type": resolve_artifact_name(doc["_id"]),
+                "Avg Jobs Per Shot": round(doc["avgJobsPerShot"], 1),
+                "Total Shots": doc["totalShots"]
+            } for doc in jobs_per_shot_agg]
+            
+            jps_df = pd.DataFrame(jps_data)
+            
+            fig_jps = px.bar(
+                jps_df,
+                x="Avg Jobs Per Shot",
+                y="Artifact Type",
+                orientation="h",
+                title="Avg Jobs Per Shot by Artifact Type",
+                hover_data=["Total Shots"],
+            )
+            fig_jps.update_layout(height=max(300, len(jps_data) * 35 + 100))
+            st.plotly_chart(fig_jps, use_container_width=True)
+        else:
+            st.info("No shot data available (jobs missing inputShot)")
+        
         # --- Recent Jobs Table (only fetch 50 documents) ---
         st.divider()
         st.subheader("Recent Jobs")
