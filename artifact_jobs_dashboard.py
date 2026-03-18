@@ -225,8 +225,18 @@ if connect_button or st.session_state.connected:
         
         st.divider()
         
-        # --- Aggregation: Timeline (jobs per hour by status) ---
+        # --- Aggregation: Timeline (jobs created per hour) ---
         timeline_agg = list(collection.aggregate([
+            match_stage,
+            {"$group": {
+                "_id": {"$dateTrunc": {"date": "$createdAt", "unit": "hour"}},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]))
+        
+        # --- Aggregation: Timeline by status (for failure rate / pending charts) ---
+        timeline_by_status_agg = list(collection.aggregate([
             match_stage,
             {"$group": {
                 "_id": {
@@ -242,12 +252,11 @@ if connect_button or st.session_state.connected:
         col_left, col_right = st.columns([2, 1])
         
         with col_left:
-            st.subheader("Jobs Over Time")
+            st.subheader("Jobs Created Per Hour")
             
             if timeline_agg:
                 timeline_data = [{
-                    "hour": doc["_id"]["hour"],
-                    "status": doc["_id"]["status"] or "unknown",
+                    "hour": doc["_id"],
                     "count": doc["count"]
                 } for doc in timeline_agg]
                 
@@ -257,11 +266,10 @@ if connect_button or st.session_state.connected:
                     df_timeline,
                     x='hour',
                     y='count',
-                    color='status',
-                    title='Job Count by Hour',
-                    color_discrete_map={'completed': '#00c853', 'failed': '#d32f2f', 'running': '#ff6f00'},
-                    labels={'hour': 'Time', 'count': 'Number of Jobs'}
+                    title='Jobs Created Per Hour',
+                    labels={'hour': 'Time', 'count': 'Jobs Created'}
                 )
+                fig_timeline.update_traces(marker_color='#1565c0')
                 fig_timeline.update_layout(height=400)
                 st.plotly_chart(fig_timeline, use_container_width=True)
         
@@ -283,11 +291,11 @@ if connect_button or st.session_state.connected:
             st.plotly_chart(fig_pie, use_container_width=True)
         
         # --- Failure rate over time ---
-        if timeline_agg:
+        if timeline_by_status_agg:
             st.subheader("Failure Rate Over Time")
             
             hourly_totals = defaultdict(lambda: {"total": 0, "failed": 0})
-            for doc in timeline_agg:
+            for doc in timeline_by_status_agg:
                 hour = doc["_id"]["hour"]
                 status = doc["_id"]["status"] or "unknown"
                 count = doc["count"]
@@ -351,25 +359,53 @@ if connect_button or st.session_state.connected:
             fig_duration_time.update_layout(height=350)
             st.plotly_chart(fig_duration_time, use_container_width=True)
         
-        # --- Pending Jobs Over Time ---
-        if timeline_agg:
-            pending_data = [
-                {"hour": doc["_id"]["hour"], "count": doc["count"]}
-                for doc in timeline_agg
-                if (doc["_id"]["status"] or "unknown") == "pending"
-            ]
-            if pending_data:
-                st.subheader("Pending Jobs Over Time")
-                df_pending = pd.DataFrame(pending_data)
-                fig_pending_time = px.line(
-                    df_pending, x="hour", y="count",
-                    title="Pending Jobs by Hour",
-                    labels={"hour": "Time", "count": "Pending Jobs"},
-                    markers=True,
-                )
-                fig_pending_time.update_traces(line_color="#ff6f00")
-                fig_pending_time.update_layout(height=350)
-                st.plotly_chart(fig_pending_time, use_container_width=True)
+        # --- Jobs Started Per Hour ---
+        started_agg = list(collection.aggregate([
+            match_stage,
+            {"$match": {"startTime": {"$exists": True}}},
+            {"$group": {
+                "_id": {"$dateTrunc": {"date": "$startTime", "unit": "hour"}},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]))
+        
+        if started_agg:
+            st.subheader("Jobs Started Per Hour")
+            started_data = [{"hour": doc["_id"], "count": doc["count"]} for doc in started_agg]
+            df_started = pd.DataFrame(started_data)
+            fig_started = px.bar(
+                df_started, x="hour", y="count",
+                title="Jobs Started Per Hour",
+                labels={"hour": "Time", "count": "Jobs Started"},
+            )
+            fig_started.update_traces(marker_color="#00c853")
+            fig_started.update_layout(height=350)
+            st.plotly_chart(fig_started, use_container_width=True)
+        
+        # --- Currently Pending Jobs by Creation Hour ---
+        pending_now_agg = list(collection.aggregate([
+            match_stage,
+            {"$match": {"status": "pending"}},
+            {"$group": {
+                "_id": {"$dateTrunc": {"date": "$createdAt", "unit": "hour"}},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]))
+        
+        if pending_now_agg:
+            st.subheader("Currently Pending Jobs (by creation time)")
+            pending_now_data = [{"hour": doc["_id"], "count": doc["count"]} for doc in pending_now_agg]
+            df_pending_now = pd.DataFrame(pending_now_data)
+            fig_pending_now = px.bar(
+                df_pending_now, x="hour", y="count",
+                title="Currently Pending Jobs by Creation Hour",
+                labels={"hour": "Created At", "count": "Pending Jobs"},
+            )
+            fig_pending_now.update_traces(marker_color="#ff6f00")
+            fig_pending_now.update_layout(height=350)
+            st.plotly_chart(fig_pending_now, use_container_width=True)
         
         # --- Error Analysis (only if there are failures) ---
         if failed_count > 0:

@@ -489,7 +489,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "normal"
+              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -516,67 +516,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "completed"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "running"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "failed"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "cancelled"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "pending"
+              "options": "value"
             },
             "properties": [
               {
@@ -585,6 +525,10 @@
                   "fixedColor": "blue",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Jobs Created"
               }
             ]
           }
@@ -619,13 +563,13 @@
             "type": "grafana-mongodb-datasource",
             "uid": "$datasource"
           },
-          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"time\": {\n          \"$dateTrunc\": {\n            \"date\": \"$createdAt\",\n            \"unit\": \"hour\"\n          }\n        },\n        \"status\": \"$status\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id.time\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id.time\",\n      \"status\": \"$_id.status\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
-          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"time\": {\n          \"$dateTrunc\": {\n            \"date\": \"$createdAt\",\n            \"unit\": \"hour\"\n          }\n        },\n        \"status\": \"$status\"\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id.time\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id.time\",\n      \"status\": \"$_id.status\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
           "queryType": "query",
           "refId": "A"
         }
       ],
-      "title": "Jobs Over Time",
+      "title": "Jobs Created Per Hour",
       "type": "timeseries"
     },
     {
@@ -1087,13 +1031,13 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "green",
                   "mode": "fixed"
                 }
               },
               {
                 "id": "displayName",
-                "value": "Pending Jobs"
+                "value": "Jobs Started"
               }
             ]
           }
@@ -1128,13 +1072,134 @@
             "type": "grafana-mongodb-datasource",
             "uid": "$datasource"
           },
-          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"pending\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
-          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"status\": \"pending\"\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"startTime\": {\n        \"$exists\": true\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$startTime\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      },\n      \"startTime\": {\n        \"$exists\": true\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$startTime\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
           "queryType": "query",
           "refId": "A"
         }
       ],
-      "title": "Pending Jobs Over Time",
+      "title": "Jobs Started Per Hour",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-mongodb-datasource",
+        "uid": "$datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Jobs",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Pending Jobs"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.0-21959849188.patch2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-mongodb-datasource",
+            "uid": "$datasource"
+          },
+          "parsedQuery": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"status\": \"pending\",\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "query": "db.artifactJobs.aggregate([\n  {\n    \"$match\": {\n      \"status\": \"pending\",\n      \"createdAt\": {\n        \"$gte\": \"$__timeFrom\",\n        \"$lte\": \"$__timeTo\"\n      }\n    }\n  },\n  \n  {\n    \"$addFields\": {\n      \"__passesTypeFilter\": {\n        \"$or\": [\n          {\"$eq\": [\"$_artifact_type\", \"all\"]},\n          {\"$eq\": [{\"$toString\": \"$artifactTypeId\"}, \"$_artifact_type\"]}\n        ]\n      }\n    }\n  },\n  {\n    \"$match\": {\"__passesTypeFilter\": true}\n  },\n  {\n    \"$group\": {\n      \"_id\": {\n        \"$dateTrunc\": {\n          \"date\": \"$createdAt\",\n          \"unit\": \"hour\"\n        }\n      },\n      \"count\": {\n        \"$sum\": 1\n      }\n    }\n  },\n  {\n    \"$sort\": {\n      \"_id\": 1\n    }\n  },\n  {\n    \"$project\": {\n      \"time\": \"$_id\",\n      \"value\": \"$count\",\n      \"_id\": 0\n    }\n  }\n])",
+          "queryType": "query",
+          "refId": "A"
+        }
+      ],
+      "title": "Currently Pending Jobs (by creation time)",
       "type": "timeseries"
     },
     {
@@ -1143,9 +1208,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 62
       },
-      "id": 13,
+      "id": 14,
       "panels": [],
       "title": "Error Analysis",
       "type": "row"
@@ -1187,9 +1252,9 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 53
+        "y": 63
       },
-      "id": 14,
+      "id": 15,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1256,9 +1321,9 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 53
+        "y": 63
       },
-      "id": 15,
+      "id": 16,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1379,9 +1444,9 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 53
+        "y": 63
       },
-      "id": 16,
+      "id": 17,
       "options": {
         "legend": {
           "calcs": [
@@ -1439,9 +1504,9 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 58
+        "y": 68
       },
-      "id": 17,
+      "id": 18,
       "options": {
         "barWidth": 0.7,
         "fullHighlight": false,
@@ -1579,9 +1644,9 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 58
+        "y": 68
       },
-      "id": 18,
+      "id": 19,
       "options": {
         "legend": {
           "displayMode": "table",
@@ -1628,9 +1693,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 80
       },
-      "id": 19,
+      "id": 20,
       "panels": [],
       "title": "Jobs by Artifact Type",
       "type": "row"
@@ -1738,9 +1803,9 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 71
+        "y": 81
       },
-      "id": 20,
+      "id": 21,
       "options": {
         "legend": {
           "displayMode": "table",
@@ -1884,9 +1949,9 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 71
+        "y": 81
       },
-      "id": 21,
+      "id": 22,
       "options": {
         "legend": {
           "displayMode": "table",
@@ -2007,9 +2072,9 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 83
+        "y": 93
       },
-      "id": 22,
+      "id": 23,
       "options": {
         "legend": {
           "calcs": [
@@ -2156,9 +2221,9 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 95
+        "y": 105
       },
-      "id": 23,
+      "id": 24,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
@@ -2202,9 +2267,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 105
+        "y": 115
       },
-      "id": 24,
+      "id": 25,
       "panels": [],
       "title": "Performance",
       "type": "row"
@@ -2235,9 +2300,9 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 106
+        "y": 116
       },
-      "id": 25,
+      "id": 26,
       "options": {
         "barWidth": 0.7,
         "fullHighlight": false,
@@ -2298,9 +2363,9 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 118
+        "y": 128
       },
-      "id": 26,
+      "id": 27,
       "options": {
         "barWidth": 0.7,
         "fullHighlight": false,
@@ -2361,9 +2426,9 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 130
+        "y": 140
       },
-      "id": 27,
+      "id": 28,
       "options": {
         "barWidth": 0.7,
         "fullHighlight": false,
@@ -2404,9 +2469,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 142
+        "y": 152
       },
-      "id": 28,
+      "id": 29,
       "panels": [],
       "title": "Recent Jobs",
       "type": "row"
@@ -2509,9 +2574,9 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 143
+        "y": 153
       },
-      "id": 29,
+      "id": 30,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
@@ -2649,9 +2714,9 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 158
+        "y": 168
       },
-      "id": 30,
+      "id": 31,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
@@ -2778,9 +2843,9 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 173
+        "y": 183
       },
-      "id": 31,
+      "id": 32,
       "options": {
         "cellHeight": "sm",
         "showHeader": true

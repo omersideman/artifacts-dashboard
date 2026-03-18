@@ -346,12 +346,13 @@ pid += 1; y += 6
 
 # ─── Jobs Over Time (timeseries) + Status Distribution (piechart) ───
 
-panels.append(timeseries_panel("Jobs Over Time", [
+panels.append(timeseries_panel("Jobs Created Per Hour", [
     {"$match": {**_base_match()}},
-    {"$group": {"_id": {"time": {"$dateTrunc": {"date": "$createdAt", "unit": "hour"}}, "status": "$status"}, "count": {"$sum": 1}}},
-    {"$sort": {"_id.time": 1}},
-    {"$project": {"time": "$_id.time", "status": "$_id.status", "value": "$count", "_id": 0}}
-], {"h": 12, "w": 16, "x": 0, "y": y}, pid, draw_style="bars", stacking="normal"))
+    {"$group": {"_id": {"$dateTrunc": {"date": "$createdAt", "unit": "hour"}}, "count": {"$sum": 1}}},
+    {"$sort": {"_id": 1}},
+    {"$project": {"time": "$_id", "value": "$count", "_id": 0}}
+], {"h": 12, "w": 16, "x": 0, "y": y}, pid, draw_style="bars",
+    overrides=[{"matcher": {"id": "byName", "options": "value"}, "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}, {"id": "displayName", "value": "Jobs Created"}]}]))
 pid += 1
 
 panels.append(pie_panel("Status Distribution", [
@@ -393,10 +394,23 @@ panels.append(timeseries_panel("Average Duration Over Time (minutes)", [
     y_axis_label="Minutes"))
 pid += 1; y += 10
 
-# ─── Pending Jobs Over Time ───
+# ─── Jobs Started Per Hour ───
 
-panels.append(timeseries_panel("Pending Jobs Over Time", [
-    {"$match": {**_base_match(), "status": "pending"}},
+panels.append(timeseries_panel("Jobs Started Per Hour", [
+    {"$match": {**_base_match(), "startTime": {"$exists": True}}},
+    {"$group": {"_id": {"$dateTrunc": {"date": "$startTime", "unit": "hour"}},
+                "count": {"$sum": 1}}},
+    {"$sort": {"_id": 1}},
+    {"$project": {"time": "$_id", "value": "$count", "_id": 0}}
+], {"h": 10, "w": 24, "x": 0, "y": y}, pid,
+    overrides=[{"matcher": {"id": "byName", "options": "value"}, "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}, {"id": "displayName", "value": "Jobs Started"}]}],
+    y_axis_label="Jobs"))
+pid += 1; y += 10
+
+# ─── Currently Pending Jobs by Creation Hour ───
+
+panels.append(timeseries_panel("Currently Pending Jobs (by creation time)", [
+    {"$match": {"status": "pending", **_base_match()}},
     {"$group": {"_id": {"$dateTrunc": {"date": "$createdAt", "unit": "hour"}},
                 "count": {"$sum": 1}}},
     {"$sort": {"_id": 1}},
